@@ -1,5 +1,5 @@
 // CreateProcessSample.cpp : 이 파일에는 'main' 함수가 포함됩니다. 거기서 프로그램 실행이 시작되고 종료됩니다.
-//
+//cmd에서 wmic useraccount where name='사용자이름' get sid으로 확인 가능
 
 #include <iostream>
 #include <Windows.h>
