@@ -53,14 +53,15 @@ int main() {
         ::CloseHandle(hThread);
         return 1;
     }
-
+   
     HANDLE hThreads[2] = { hThread,hThread1};
 
     //우연이라는 단어가 등장하게 되는 시기
     //ThreadFunction 함수안에 있는 내용이 먼저 될지
     //메인 스레드가 진행되면서 아래의 내용들이 먼저 처리 될지는 우연이다.
-    //실제로도 ThreadFunction()과 ThreadFunction1()은 둘중 하나가 우연하게 먼저 실행되고 종료한다.
-
+	
+    cout << "main() - WaitForMultipleObjects-before." << endl;
+	
     ::WaitForMultipleObjects(2, hThreads, TRUE, INFINITE); //두개의 스레드가 모두 종료할 때 가지 대기
     ::CloseHandle(hThread);
     ::CloseHandle(hThread1);
