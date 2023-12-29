@@ -67,7 +67,7 @@ int main()
 	}
 
 	//3. 대상 파일을 비동기 쓰기모드 모드로 개방
-	::DeleteFile(TEXT("C:\\TEST\\Sleep Away - copy.zip"));
+	::DeleteFile(TEXT("C:\\Eyes of Glory.zip"));
 	hFileTarget = ::CreateFile(TEXT("C:\\Eyes of Glory-filecopy.zip"),
 		GENERIC_ALL,				//쓰기모드
 		0,							//공유안함.
@@ -113,3 +113,5 @@ int main()
 
 	return 0;
 }
+
+
