@@ -2,16 +2,18 @@
 #include <windows.h>
 #include <tchar.h>
 
+
 void CALLBACK FileIoComplete(
     DWORD dwError,
-    DWORD dwTransferred,
-    LPOVERLAPPED pOverlapped)
+    DWORD dwTransfered,
+    LPOVERLAPPED pO1)
 {
-    printf("FileIoComplete() Callback - [%d bytes] 쓰기 완료\n", dwTransferred);
+    printf("FileIoComplete() Callback - [%d 바이트] 쓰기 완료 -%s\n", dwTransfered, (char*)pO1->hEvent);
 
-    // 사용한 메모리를 해제
-    delete[]((char*)pOverlapped->hEvent);
-    delete pOverlapped;
+    //hEvent 멤버를 포인터로 전용했으므로 가리키는 대상 메모리를 해제한다.
+    //이 메모리는 IoThreadFunction() 함수에서 동적 할당된 것들이다!
+    delete[] pO1->hEvent;
+    delete pO1;
     puts("FileIoComplete() - return \n");
 }
 
@@ -20,11 +22,12 @@ DWORD WINAPI IoThreadFunction(LPVOID pParam) {
     memset(pszBuffer, 0, sizeof(char) * 16);
     strcpy_s(pszBuffer, sizeof(char) * 16, "Hello IOCP");
 
-    LPOVERLAPPED pOverlapped = new OVERLAPPED;
+    LPOVERLAPPED pOverlapped = NULL;
+    pOverlapped = new OVERLAPPED;
     memset(pOverlapped, 0, sizeof(OVERLAPPED));
 
     pOverlapped->Offset = 1024 * 1024 * 5;
-    pOverlapped->hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+    pOverlapped->hEvent = pszBuffer;
 
     puts("IoThreadFunction() - 중첩된 쓰기 시도");
     ::WriteFileEx((HANDLE)pParam,
@@ -33,15 +36,11 @@ DWORD WINAPI IoThreadFunction(LPVOID pParam) {
         pOverlapped,
         FileIoComplete);
 
-    // 기다리는 동안 작업을 수행
-    for (; ::SleepEx(1, TRUE) != WAIT_IO_COMPLETION;);
-
-    // 사용한 메모리를 해제
-    CloseHandle(pOverlapped->hEvent);
-    delete pOverlapped;
-    delete[] pszBuffer;
-
-    puts("IoThreadFunction() - return ");
+    // 비동기 쓰기 시도에 대해 ALERTABLE_WAIT 상태로 대기
+    for (; ::SleepEx(1, TRUE) != WAIT_IO_COMPLETION;); {
+        //SleepEx를 호출한 WorkerThread가 ALERTABLE_WAIT 상태가 된다/
+        puts("IothreadFunction() - return ");
+    }
     return 0;
 }
 
@@ -54,30 +53,18 @@ int _tmain(int argc, _TCHAR* argv[]) {
         FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, // 중첩된 쓰기 -> 비동기 쓰기
         NULL);
 
-    if (hFile == INVALID_HANDLE_VALUE) {
-        _tprintf(_T("Error creating file. Error code: %d\n"), GetLastError());
-        return 1;
-    }
-
-    HANDLE hThread = ::CreateThread(
+    HANDLE hThread = NULL;
+    DWORD dwThreadID = 0;
+    dwThreadID=0;
+    hThread = ::CreateThread(
         NULL,
         0,
         IoThreadFunction,
         hFile,
         0,
-        NULL);
-
-    if (hThread == NULL) {
-        _tprintf(_T("Error creating thread. Error code: %d\n"), GetLastError());
-        CloseHandle(hFile);
-        return 1;
-    }
-
-    WaitForSingleObject(hThread, INFINITE);
-
-    // 스레드 종료 후 사용된 자원을 해제
-    CloseHandle(hThread);
-    CloseHandle(hFile);
+        &dwThreadID);
+    //작업자 스레드가 종료될 때까지 기다린다.
+    ::WaitForSingleObject(hThread,INFINITE);
 
     return 0;
 }
