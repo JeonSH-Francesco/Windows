@@ -41,8 +41,11 @@ int main() {
 	//4. 메모리에 데이터를 쓴다.
 	strcpy_s(pszMemory, 1024, "Hello Memory Mapped File!");
 	//::FlushViewOfFile(pszMemory, 1024);
+	//RAM영역에 있는 메모리를 어떤 포인터에 대해서 Copy를 했다.
+	//->이때 일어난 것은 메모리에서 파일로 복사한 것이다.(파일 입출력이 일어난 것이다.)
+	//어떤 파일에 대한 I/O라는 것은 버퍼가 개입 한다. I/O Buffer가 남아 있다면 Flush 해주면 된다.
 
-	//5. 메모리 매핑을 해제하고 종료한다.
+	//5. 메모리 매핑을 해제하고 종료한다.->이때 Flush된다.
 	::UnmapViewOfFile(pszMemory);
 	::CloseHandle(hMap);
 
