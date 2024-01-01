@@ -2,15 +2,16 @@
 #include <stdio.h>
 #include <Windows.h>
 
+//파일 복사에 필요한 데이터를 저장하는 구조체
 typedef struct _COPY_DATA
 {
-	LPVOID		pMapView;
-	HANDLE		hMap;
-	HANDLE		hFileSource;
-	HANDLE		hFileTarget;
+	LPVOID		pMapView; // 원본 파일의 메모리 매핑 뷰
+	HANDLE		hMap; //원본 파일의 파일 매핑 핸들
+	HANDLE		hFileSource; //원본 파일 핸들
+	HANDLE		hFileTarget; //대상 파일 핸들
 } COPY_DATA;
 
-
+//비동기 파일 쓰기 완료 루틴
 VOID CALLBACK WriteFileIOCompletionRoutine(DWORD dwErrorCode,
 	DWORD dwNumberOfBytesTransfered,
 	LPOVERLAPPED lpOverlapped)
@@ -20,7 +21,7 @@ VOID CALLBACK WriteFileIOCompletionRoutine(DWORD dwErrorCode,
 	{
 		//각종 핸들 닫기 및 메모리 해제
 		COPY_DATA* pCopyData = (COPY_DATA*)lpOverlapped->hEvent;
-
+		//해당 비동기 I/O 작업에 사용된 메모리와 핸들이 올바르게 정리되고, 리소스 누수를 방지
 		::UnmapViewOfFile(pCopyData->pMapView);
 		::CloseHandle(pCopyData->hMap);
 		::CloseHandle(pCopyData->hFileSource);
@@ -35,6 +36,7 @@ VOID CALLBACK WriteFileIOCompletionRoutine(DWORD dwErrorCode,
 	_putws(L"WriteFileIOCompletionRoutine() - End");
 }
 
+//열린 핸들 메모리 해제 함수
 void CloseAll(char* pszMem, HANDLE hMap, HANDLE hSrc, HANDLE hDst)
 {
 	if (pszMem != NULL)
@@ -59,10 +61,10 @@ int main()
 	hFileSource = ::CreateFile(TEXT("C:\\Eyes of Glory.zip"),
 		GENERIC_READ,				//읽기모드
 		FILE_SHARE_READ,			//읽기모드 공유허용
-		NULL,						//보안속성 없음.
+		NULL,					//보안속성 없음.
 		OPEN_EXISTING,				//존재하는 파일 열기
-		FILE_ATTRIBUTE_NORMAL,
-		NULL);						//동기 I/O
+		FILE_ATTRIBUTE_NORMAL,			//파일 속성
+		NULL);					//동기 I/O
 	if (hFileSource == INVALID_HANDLE_VALUE)
 	{
 		wprintf(L"Failed to open source file [ERROR CODE: %d]\n",
