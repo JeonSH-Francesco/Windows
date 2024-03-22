@@ -79,3 +79,29 @@ int main() {
     std::cout << output << std::endl;
     return 0;
 }
+/*
+
+#include <stdio.h>
+
+int main() {
+    FILE* fp;
+    char ch;
+
+    // cmd.exe 실행하여 결과 읽기
+    fp = _popen("netstat -ano", "r");
+    if (fp == NULL) {
+        printf("Failed to run command\n");
+        return 1;
+    }
+
+    // 결과 출력
+    while ((ch = fgetc(fp)) != EOF) {
+        putchar(ch);
+    }
+
+    // 파일 포인터 닫기
+    _pclose(fp);
+
+    return 0;
+}
+*/
