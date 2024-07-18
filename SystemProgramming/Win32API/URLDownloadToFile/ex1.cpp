@@ -27,6 +27,7 @@ int main()
     else {
         cout << "파일 다운로드 실패: 0x" << hex << hr << endl;
     }
-
+    //URLDownloadToFile 함수는 URL에서 파일을 다운로드하는 동기적인 함수로, 
+    //파일 다운로드가 완료되면 함수가 반환될 때 자동으로 리소스가 해제됩니다.
     return 0;
 }
