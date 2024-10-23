@@ -1,0 +1,45 @@
+#include <windows.h>
+#include <stdio.h>
+#define SIGNATURE_SIZE 8 // PNG 시그니처 크기
+
+const BYTE PNG_SIGNATURE[] = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
+
+int IsPngFile(const char* filePath) {
+	HANDLE hFile = CreateFileA(filePath, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile == INVALID_HANDLE_VALUE) {
+		return 0; // 파일을 열 수 없으면 false
+	}
+
+	BYTE buffer[SIGNATURE_SIZE];
+	DWORD bytesRead;
+
+	// 시그니처 읽기
+	if (ReadFile(hFile, buffer, SIGNATURE_SIZE, &bytesRead, NULL) && bytesRead == SIGNATURE_SIZE) {
+		CloseHandle(hFile);
+		// 시그니처 비교
+		return memcmp(buffer, PNG_SIGNATURE, SIGNATURE_SIZE) == 0;
+	}
+
+	CloseHandle(hFile);
+	return 0; // PNG 파일이 아님
+}
+
+void DeletePngFile(const char* filePath) {
+	if (IsPngFile(filePath)) {
+		if (DeleteFileA(filePath)) {
+			printf("파일 삭제 성공: %s\n", filePath);
+		}
+		else {
+			printf("파일 삭제 실패: %s\n", filePath);
+		}
+	}
+	else {
+		printf("PNG 파일이 아닙니다: %s\n", filePath);
+	}
+}
+
+int main() {
+	const char* filePath = "C:\\example.png"; // 경로 설정
+	DeletePngFile(filePath);
+	return 0;
+}
