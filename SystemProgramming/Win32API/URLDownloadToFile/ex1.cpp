@@ -7,7 +7,7 @@ using namespace std;
 int main()
 {
     // 다운로드할 URL
-    const wchar_t* url = L"https://drive.google.com/uc?export=download&id=1VIHQCDe3lx_UMHl2fxljf4A_6V0SM7f7";
+    const wchar_t* url = L"https://drive.google.com~~~";
 
     // 저장할 파일 경로 (파일 이름 포함)
     const wchar_t* filePath = L"C:\\downloaded_file.txt";  // 원하는 파일 이름으로 변경
