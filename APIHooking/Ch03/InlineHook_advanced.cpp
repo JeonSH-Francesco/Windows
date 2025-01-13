@@ -4,7 +4,7 @@
 
 using namespace std;
 
-//release x86 최적화 사용 안함으로 설정
+//Release x86 최적화 사용 안함으로 설정
 
 #pragma pack(push, 1) // 패딩 없이 1바이트 단위로 정렬
 typedef struct JUMP_CODE {
