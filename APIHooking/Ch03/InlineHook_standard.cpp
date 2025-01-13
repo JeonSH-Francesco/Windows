@@ -4,6 +4,8 @@
 
 using namespace std;
 
+//Release x86 최적화 사용 안함으로 설정
+
 #pragma pack(push,1) //패딩 없이 정렬 기준을 1바이트로 설정한다.
 //즉, 멤버 변수가 정렬 요구사항을 무시하고 연속적으로 배치한다.
 //JMP 명령어 구조를 표현하는 구조체
@@ -163,8 +165,6 @@ int main(){
 	
 	return 0;
 }
-
-
 
 
 
